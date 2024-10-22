@@ -6,19 +6,25 @@ export default async function recebedorDeRequests(request, response) {
     const client = new SiteClient(TOKEN)
 
     // Validar os dados, antes de sair cadastrando
+    const { title, imageUrl, membros } = request.body; // Captura o título e a URL da imagem da comunidade
+
+    // Cria a comunidade com a imagem
     const registroCriado = await client.items.create({
       itemType: '979906', // ID do Model de 'Communities' criado pelo Dato
-      ...request.body, // Aqui você já está pegando os dados do corpo da requisição
+      title, // Título da comunidade
+      imageUrl, // URL da imagem da comunidade
+      // Adicione outras propriedades da comunidade se necessário
     })
 
     // Para adicionar membros, você pode fazer isso aqui
     // Supondo que você tenha um modelo para membros no DatoCMS
-    if (request.body.membros) {
-      for (const membro of request.body.membros) {
+    if (membros) {
+      for (const membro of membros) {
         await client.items.create({
           itemType: 'YOUR_MEMBERS_MODEL_ID', // Substitua pelo ID do seu modelo de membros
           nome: membro.nome,
           url: membro.url,
+          imagem: membro.imagem, // Inclua a URL da imagem do membro
           comunidadeId: registroCriado.id // Associa o membro à comunidade criada
         })
       }
@@ -27,7 +33,7 @@ export default async function recebedorDeRequests(request, response) {
     console.log(registroCriado)
 
     response.json({
-      dados: 'Algum dado qualquer',
+      dados: 'Comunidade criada com sucesso!',
       registroCriado: registroCriado
     })
     return
